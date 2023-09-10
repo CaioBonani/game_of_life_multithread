@@ -6,28 +6,37 @@
 #define nThreads 2
 #define nGenerations 2000
 
-void alocarMatriz(float ***matriz) {
-    *matriz = (float**)malloc(N * sizeof(float*));
-    for (int i = 0; i < N; i++) {
-        (*matriz)[i] = (float*)malloc(N * sizeof(float));
+void alocarMatriz(float ***matriz)
+{
+    *matriz = (float **)malloc(N * sizeof(float *));
+    for (int i = 0; i < N; i++)
+    {
+        (*matriz)[i] = (float *)malloc(N * sizeof(float));
     }
 }
 
-void desalocarMatriz(float ***matriz) {
-    for (int i = 0; i < N; i++) {
+void desalocarMatriz(float ***matriz)
+{
+    for (int i = 0; i < N; i++)
+    {
         free((*matriz)[i]);
     }
     free(*matriz);
 }
 
-void zerarMatriz(float ***matriz) {
-    unsigned char* temp = (unsigned char*)malloc(N * N * sizeof(float));
-    memset(temp, 0, N * N * sizeof(float));
-    memcpy(*matriz, temp, N * N * sizeof(float));
-    free(temp);
+void zerarMatriz(float ***matriz)
+{
+    for (int i = 0; i < N; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+            (*matriz)[i][j] = 0;
+        }
+    }
 }
 
-void glider(float ***matriz) {
+void glider(float ***matriz)
+{
     int lin = 1, col = 1;
     (*matriz)[lin][col + 1] = 1.0;
     (*matriz)[lin + 1][col + 2] = 1.0;
@@ -36,7 +45,8 @@ void glider(float ***matriz) {
     (*matriz)[lin + 2][col + 2] = 1.0;
 }
 
-void rPentomino(float ***matriz) {
+void rPentomino(float ***matriz)
+{
     int lin = 10;
     int col = 30;
     (*matriz)[lin][col + 1] = 1.0;
@@ -46,20 +56,26 @@ void rPentomino(float ***matriz) {
     (*matriz)[lin + 2][col + 1] = 1.0;
 }
 
-void printarMatriz(float **matriz){
+void printarMatriz(float **matriz)
+{
 
     int i, j;
 
-    for(i=0; i < 50; i++){
-        for(j = 0; j < 50; j++){
-            
+    for (i = 0; i < 50; i++)
+    {
+        for (j = 0; j < 50; j++)
+        {
+
             printf("[%2.f]", matriz[i][j]);
         }
     }
 }
 
-int main() {
+int main()
+{
     float **grid, **newGrid;
+
+    printf("\nTESTE1");
 
     alocarMatriz(&grid);
     alocarMatriz(&newGrid);
@@ -70,7 +86,7 @@ int main() {
     glider(&grid);
     rPentomino(&grid);
 
-    printf("\nTESTE");
+    printf("\nTESTE2");
 
     printarMatriz(grid);
 
