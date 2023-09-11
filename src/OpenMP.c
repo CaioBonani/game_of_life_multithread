@@ -1,61 +1,61 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <time.h>
 
 #define N 2048
 #define nThreads 2
-#define nGenerations 2000
+#define nGenerations 50
 
-void alocarMatriz(float ***matriz)
+void alocarMatriz(float ***grid)
 {
-    *matriz = (float **)malloc(N * sizeof(float *));
+    *grid = (float **)malloc(N * sizeof(float *));
     for (int i = 0; i < N; i++)
     {
-        (*matriz)[i] = (float *)malloc(N * sizeof(float));
+        (*grid)[i] = (float *)malloc(N * sizeof(float));
     }
 }
 
-void desalocarMatriz(float ***matriz)
+void desalocarMatriz(float ***grid)
 {
     for (int i = 0; i < N; i++)
     {
-        free((*matriz)[i]);
+        free((*grid)[i]);
     }
-    free(*matriz);
+    free(*grid);
 }
 
-void zerarMatriz(float ***matriz)
+void zerarMatriz(float ***grid)
 {
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
         {
-            (*matriz)[i][j] = 0;
+            (*grid)[i][j] = 0;
         }
     }
 }
-void glider(float ***matriz)
+void glider(float ***grid)
 {
     int lin = 1, col = 1;
-    (*matriz)[lin][col + 1] = 1.0;
-    (*matriz)[lin + 1][col + 2] = 1.0;
-    (*matriz)[lin + 2][col] = 1.0;
-    (*matriz)[lin + 2][col + 1] = 1.0;
-    (*matriz)[lin + 2][col + 2] = 1.0;
+    (*grid)[lin][col + 1] = 1.0;
+    (*grid)[lin + 1][col + 2] = 1.0;
+    (*grid)[lin + 2][col] = 1.0;
+    (*grid)[lin + 2][col + 1] = 1.0;
+    (*grid)[lin + 2][col + 2] = 1.0;
 }
 
-void rPentomino(float ***matriz)
+void rPentomino(float ***grid)
 {
     int lin = 10;
     int col = 30;
-    (*matriz)[lin][col + 1] = 1.0;
-    (*matriz)[lin][col + 2] = 1.0;
-    (*matriz)[lin + 1][col] = 1.0;
-    (*matriz)[lin + 1][col + 1] = 1.0;
-    (*matriz)[lin + 2][col + 1] = 1.0;
+    (*grid)[lin][col + 1] = 1.0;
+    (*grid)[lin][col + 2] = 1.0;
+    (*grid)[lin + 1][col] = 1.0;
+    (*grid)[lin + 1][col + 1] = 1.0;
+    (*grid)[lin + 2][col + 1] = 1.0;
 }
 
-void printarMatriz(float **matriz)
+void printarMatriz(float **grid)
 {
 
     int i, j;
@@ -65,12 +65,12 @@ void printarMatriz(float **matriz)
         for (j = 0; j < 50; j++)
         {
 
-            printf("[%2.f]", matriz[i][j]);
+            printf("[%2.f]", grid[i][j]);
         }
     }
 }
 
-int somaVizinhos(float **matriz, int i, int j)
+int somaVizinhos(float ***grid, int i, int j)
 {
 
     int totalVizinhos = 0;
@@ -106,7 +106,9 @@ int somaVizinhos(float **matriz, int i, int j)
                     py = 0;
                 }
 
-                totalVizinhos += matriz[px][py];
+                if((*grid)[px][py] == 1.0){
+                    totalVizinhos += 1;
+                }
 
             }
         }
@@ -115,9 +117,70 @@ int somaVizinhos(float **matriz, int i, int j)
     return totalVizinhos;
 }
 
+void trocarMatriz(float ***grid, float ***newGrid){
+
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+
+            (*grid)[i][j] = (*newGrid)[i][j];
+        }
+    }
+}
+
+int somarVivos(float ***grid){
+
+    int totalVivos = 0;
+
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+
+            if((*grid)[i][j] == 1.0){
+                totalVivos += 1;
+            }
+        }
+    }
+
+    return totalVivos;
+}
+
+
+void geracao(float ***grid, float ***newGrid){
+
+    for(int i = 0; i < N; i++){
+        for(int j = 0; j < N; j++){
+
+            int vizinhos = somaVizinhos(grid, i, j);
+
+            if(vizinhos < 2){
+                (*newGrid)[i][j] = 0;
+            }
+
+            if(vizinhos > 3){
+                (*newGrid)[i][j] = 0;
+            }
+
+            if(vizinhos == 3){
+                (*newGrid)[i][j] = 1;
+            }
+
+            if(vizinhos == 2){
+                if((*grid)[i][j] == 1){
+                    (*newGrid)[i][j] = 1;
+                }
+
+                else{
+                    (*newGrid)[i][j] = 0;
+                }
+            }
+        }
+    }
+}
+
 int main()
 {
     float **grid, **newGrid;
+    time_t inicioTotal, finalTotal, inicioLaco, finalLaco;
+    time(&inicioTotal);
 
     alocarMatriz(&grid);
     alocarMatriz(&newGrid);
@@ -128,175 +191,36 @@ int main()
     glider(&grid);
     rPentomino(&grid);
 
-    // printarMatriz(grid);
+    time(&inicioLaco);
 
-    newGrid[0][0] = 0.0;
-    newGrid[1][1] = 1.0;
-    newGrid[2][2] = 0.0;
-    newGrid[1][0] = 1.0;
-    newGrid[0][1] = 1.0;
-    newGrid[2][0] = 0.0;
-    newGrid[0][2] = 1.0;
-    newGrid[2][1] = 0.0;
-    newGrid[1][2] = 1.0;
+    for(int i = 0; i < nGenerations; i++){
 
-    int teste = somaVizinhos(newGrid, 1, 1);
+        geracao(&grid, &newGrid);
+        trocarMatriz(&grid, &newGrid);
+        zerarMatriz(&newGrid);
 
-    printf("\nRESULTADO DO TESTE = %i", teste);
+        int resultado = somarVivos(&grid);
+        printf("\nRESULTADO DA GERACAO(%i) = %i", i+1, resultado);
+    }
+
+    time(&finalLaco);
+
+    double tempoLaco = difftime(finalLaco, inicioLaco);
+
+    printf("\n-----Tempo total do laco -----\n");
+    printf("%.2f segundos \n", tempoLaco);
+    printf("------------------------------\n");
 
     desalocarMatriz(&grid);
     desalocarMatriz(&newGrid);
 
-    return 0;
-}
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+    time(&finalTotal);
 
-#define N 2048
-#define nThreads 2
-#define nGenerations 2000
+    double tempoTotal = difftime(finalTotal, inicioTotal);
 
-void alocarMatriz(float ***matriz)
-{
-    *matriz = (float **)malloc(N * sizeof(float *));
-    for (int i = 0; i < N; i++)
-    {
-        (*matriz)[i] = (float *)malloc(N * sizeof(float));
-    }
-}
-
-void desalocarMatriz(float ***matriz)
-{
-    for (int i = 0; i < N; i++)
-    {
-        free((*matriz)[i]);
-    }
-    free(*matriz);
-}
-
-void zerarMatriz(float ***matriz)
-{
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < N; j++)
-        {
-            (*matriz)[i][j] = 0;
-        }
-    }
-}
-void glider(float ***matriz)
-{
-    int lin = 1, col = 1;
-    (*matriz)[lin][col + 1] = 1.0;
-    (*matriz)[lin + 1][col + 2] = 1.0;
-    (*matriz)[lin + 2][col] = 1.0;
-    (*matriz)[lin + 2][col + 1] = 1.0;
-    (*matriz)[lin + 2][col + 2] = 1.0;
-}
-
-void rPentomino(float ***matriz)
-{
-    int lin = 10;
-    int col = 30;
-    (*matriz)[lin][col + 1] = 1.0;
-    (*matriz)[lin][col + 2] = 1.0;
-    (*matriz)[lin + 1][col] = 1.0;
-    (*matriz)[lin + 1][col + 1] = 1.0;
-    (*matriz)[lin + 2][col + 1] = 1.0;
-}
-
-void printarMatriz(float **matriz)
-{
-
-    int i, j;
-
-    for (i = 0; i < 50; i++)
-    {
-        for (j = 0; j < 50; j++)
-        {
-
-            printf("[%2.f]", matriz[i][j]);
-        }
-    }
-}
-
-int somaVizinhos(float **matriz, int i, int j)
-{
-
-    int totalVizinhos = 0;
-    int aux, aux2;
-
-    for (aux = -1; aux <= 1; aux++)
-    {
-        for (aux2 = -1; aux2 <= 1; aux2++)
-        {
-
-            if (aux != 0 || aux2 != 0)
-            {
-
-                int px = i + aux, py = j + aux2;
-
-                if (px <= -1)
-                {
-                    px = N - 1;
-                }
-
-                if (px >= N)
-                {
-                    px = 0;
-                }
-
-                if (py <= -1)
-                {
-                    py = N - 1;
-                }
-
-                if (py >= N)
-                {
-                    py = 0;
-                }
-
-                totalVizinhos += matriz[px][py];
-
-            }
-        }
-    }
-
-    return totalVizinhos;
-}
-
-int main()
-{
-    float **grid, **newGrid;
-
-    alocarMatriz(&grid);
-    alocarMatriz(&newGrid);
-
-    zerarMatriz(&grid);
-    zerarMatriz(&newGrid);
-
-    glider(&grid);
-    rPentomino(&grid);
-
-    // printarMatriz(grid);
-
-    newGrid[0][0] = 0.0;
-    newGrid[1][1] = 1.0;
-    newGrid[2][2] = 0.0;
-    newGrid[1][0] = 1.0;
-    newGrid[0][1] = 1.0;
-    newGrid[2][0] = 0.0;
-    newGrid[0][2] = 1.0;
-    newGrid[2][1] = 0.0;
-    newGrid[1][2] = 1.0;
-
-    int teste = somaVizinhos(newGrid, 1, 1);
-
-    printf("\nRESULTADO DO TESTE = %i", teste);
-
-    desalocarMatriz(&grid);
-    desalocarMatriz(&newGrid);
+    printf("---Tempo total do programa ---\n");
+    printf("%.2f segundos \n", tempoTotal);
+    printf("------------------------------\n");
 
     return 0;
 }
