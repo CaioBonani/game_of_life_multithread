@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-// #include <omp.h>
 
 #define N 2048
 #define nThreads 2
-#define nGenerations 2000
+#define nGenerations 500
 
 void alocarMatriz(float ***grid)
 {
