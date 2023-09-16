@@ -79,47 +79,18 @@ void printarMatriz(float **grid)
 
 float mediaVivos(float ***grid, int i, int j)
 {
-
     float totalVizinhos = 0.0;
-    int aux, aux2;
+    int offsets[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
-    for (aux = -1; aux <= 1; aux++)
+    for (int k = 0; k < 8; ++k)
     {
+        int px = (i + offsets[k][0] + N) % N; // Adicionado +N para garantir que o valor não seja negativo
+        int py = (j + offsets[k][1] + N) % N;
 
-        for (aux2 = -1; aux2 <= 1; aux2++)
-        {
-
-            if (aux != 0 || aux2 != 0)
-            {
-
-                int px = i + aux, py = j + aux2;
-
-                if (px <= -1)
-                {
-                    px = N - 1;
-                }
-
-                if (px >= N)
-                {
-                    px = 0;
-                }
-
-                if (py <= -1)
-                {
-                    py = N - 1;
-                }
-
-                if (py >= N)
-                {
-                    py = 0;
-                }
-
-                totalVizinhos = totalVizinhos + (*grid)[px][py];
-                // printf("Vizinhos = %2.f\n", totalVizinhos);
-            }
-        }
+        totalVizinhos += (*grid)[px][py];
     }
-    return (totalVizinhos / 8.0);
+
+    return totalVizinhos / 8;
 }
 
 void trocarMatriz(float ***grid, float ***newGrid)
@@ -264,7 +235,7 @@ int main()
         zerarMatriz(&newGrid);
 
         int resultado = somarVivos(&grid);
-        // printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
+        printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
     }
 
     gettimeofday(&finalLaco, NULL);

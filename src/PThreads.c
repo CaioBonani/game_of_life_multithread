@@ -1,10 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <pthread.h>
 
 #define N 2048
-#define nThreads 2
+#define nThreads 6
 #define nGenerations 500
+
+typedef struct
+{
+    float ***grid;
+    float ***newGrid;
+    int startRow;
+    int endRow;
+} ThreadArgs;
 
 void alocarMatriz(float ***grid)
 {
@@ -27,7 +36,6 @@ void desalocarMatriz(float ***grid)
 
 void zerarMatriz(float ***grid)
 {
-#pragma omp parallel for
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
@@ -150,10 +158,15 @@ int somarVivos(float ***grid)
     return totalVivos;
 }
 
-void geracao(float ***grid, float ***newGrid)
+void *threadWork(void *arg)
 {
-#pragma omp parallel for num_threads(nThreads)
-    for (int i = 0; i < N; i++)
+    ThreadArgs *args = (ThreadArgs *)arg;
+    float ***grid = args->grid;
+    float ***newGrid = args->newGrid;
+    int startRow = args->startRow;
+    int endRow = args->endRow;
+
+    for (int i = startRow; i < endRow; i++)
     {
         for (int j = 0; j < N; j++)
         {
@@ -196,17 +209,15 @@ void geracao(float ***grid, float ***newGrid)
                 }
             }
 
-            // Agora que temos o total de vizinhos, podemos continuar com o resto da lógica
+            // Lógica de atualização do jogo da vida
             if (totalVizinhos < 2)
             {
                 (*newGrid)[i][j] = 0;
             }
-
             if (totalVizinhos > 3)
             {
                 (*newGrid)[i][j] = 0;
             }
-
             if (totalVizinhos == 3)
             {
                 if ((*grid)[i][j] == 1)
@@ -218,7 +229,6 @@ void geracao(float ***grid, float ***newGrid)
                     (*newGrid)[i][j] = mediaVivos(grid, i, j);
                 }
             }
-
             if (totalVizinhos == 2)
             {
                 if ((*grid)[i][j] != 0)
@@ -232,13 +242,17 @@ void geracao(float ***grid, float ***newGrid)
             }
         }
     }
+    return NULL;
 }
 
 int main()
 {
     float **grid, **newGrid;
     struct timeval inicioTotal, finalTotal, inicioLaco, finalLaco;
+    pthread_t threads[nThreads];
     gettimeofday(&inicioTotal, NULL);
+    ThreadArgs threadArgs[nThreads];
+    int rowsPerThread = N / nThreads;
 
     alocarMatriz(&grid);
     alocarMatriz(&newGrid);
@@ -251,15 +265,28 @@ int main()
 
     gettimeofday(&inicioLaco, NULL);
 
-    for (int i = 0; i < nGenerations; i++)
+    for (int gen = 0; gen < nGenerations; gen++)
     {
+        for (long i = 0; i < nThreads; i++)
+        {
+            threadArgs[i].grid = &grid;
+            threadArgs[i].newGrid = &newGrid;
+            threadArgs[i].startRow = i * rowsPerThread;
+            threadArgs[i].endRow = (i + 1) * rowsPerThread;
 
-        geracao(&grid, &newGrid);
-        trocarMatriz(&grid, &newGrid);
-        zerarMatriz(&newGrid);
+            pthread_create(&threads[i], NULL, threadWork, (void *)&threadArgs[i]);
+        }
+
+        for (long i = 0; i < nThreads; i++)
+        {
+            pthread_join(threads[i], NULL);
+        }
 
         int resultado = somarVivos(&grid);
-        printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
+        printf("\nRESULTADO DA GERACAO(%i) = %i", gen + 1, resultado);
+
+        trocarMatriz(&grid, &newGrid);
+        zerarMatriz(&newGrid);
     }
 
     gettimeofday(&finalLaco, NULL);
