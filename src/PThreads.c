@@ -4,8 +4,8 @@
 #include <pthread.h>
 
 #define N 2048
-#define nThreads 4
-#define nGenerations 500
+#define nThreads 8
+#define nGenerations 2000
 
 typedef struct
 {
@@ -267,6 +267,10 @@ int main()
 
     printf("\n-----Tempo total do laco -----\n");
     printf("%.2f segundos \n", tempoLaco);
+    printf("------------------------------\n");
+
+    printf("\n-----Num Threads -----\n");
+    printf("%d \n", nThreads);
     printf("------------------------------\n");
 
     desalocarMatriz(&grid);

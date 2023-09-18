@@ -4,8 +4,8 @@
 #include <omp.h>
 
 #define N 2048
-#define nThreads 6
-#define nGenerations 500
+#define nThreads 8
+#define nGenerations 2000
 
 void alocarMatriz(float ***grid)
 {
