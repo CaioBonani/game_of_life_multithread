@@ -3,8 +3,7 @@
 #include <sys/time.h>
 
 #define N 2048
-#define nThreads 2
-#define nGenerations 500
+#define nGenerations 2000
 
 void alocarMatriz(float ***grid)
 {
@@ -27,7 +26,6 @@ void desalocarMatriz(float ***grid)
 
 void zerarMatriz(float ***grid)
 {
-#pragma omp parallel for
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
@@ -123,7 +121,6 @@ int somarVivos(float ***grid)
 
 void geracao(float ***grid, float ***newGrid)
 {
-#pragma omp parallel for num_threads(nThreads)
     for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
