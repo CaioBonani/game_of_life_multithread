@@ -214,7 +214,12 @@ int main()
 {
     float **grid, **newGrid;
     struct timeval inicioTotal, finalTotal, inicioLaco, finalLaco;
+    struct timeval inicioSerial, finalSerial, inicioParalelo, finalParalelo;
+    long long tempoSerial = 0, tempoParalelo = 0;
     gettimeofday(&inicioTotal, NULL);
+
+    // Início da parte serial
+    gettimeofday(&inicioSerial, NULL);
 
     alocarMatriz(&grid);
     alocarMatriz(&newGrid);
@@ -225,7 +230,14 @@ int main()
     glider(&grid);
     rPentomino(&grid);
 
+    // Final da parte serial
+    gettimeofday(&finalSerial, NULL);
+    tempoSerial += (finalSerial.tv_sec - inicioSerial.tv_sec) * 1000 + (finalSerial.tv_usec - inicioSerial.tv_usec) / 1000;
+
     gettimeofday(&inicioLaco, NULL);
+
+    // Início da parte paralela
+    gettimeofday(&inicioParalelo, NULL);
 
     for (int i = 0; i < nGenerations; i++)
     {
@@ -235,15 +247,23 @@ int main()
         zerarMatriz(&newGrid);
 
         int resultado = somarVivos(&grid);
-        printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
+        // printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
     }
+
+    // Final da parte paralela
+    gettimeofday(&finalParalelo, NULL);
+    tempoParalelo += (finalParalelo.tv_sec - inicioParalelo.tv_sec) * 1000 + (finalParalelo.tv_usec - inicioParalelo.tv_usec) / 1000;
 
     gettimeofday(&finalLaco, NULL);
 
-    double tempoLaco = (finalLaco.tv_sec - inicioLaco.tv_sec);
+    // Exibir os tempos
+    printf("\nTempo gasto na parte serial: %lld milisegundos\n", tempoSerial);
+    printf("Tempo gasto na parte paralela: %lld milisegundos\n", tempoParalelo);
+
+    long long tempoLaco = (finalLaco.tv_sec - inicioLaco.tv_sec) * 1000 + (finalLaco.tv_usec - inicioLaco.tv_usec) / 1000;
 
     printf("\n-----Tempo total do laco -----\n");
-    printf("%.2f segundos \n", tempoLaco);
+    printf("%lld milisegundos \n", tempoLaco);
     printf("------------------------------\n");
 
     printf("\n-----Num Threads -----\n");
@@ -255,10 +275,10 @@ int main()
 
     gettimeofday(&finalTotal, NULL);
 
-    double tempoTotal = (finalTotal.tv_sec - inicioTotal.tv_sec);
+    long long tempoTotal = (finalTotal.tv_sec - inicioTotal.tv_sec) * 1000 + (finalTotal.tv_usec - inicioTotal.tv_usec) / 1000;
 
     printf("---Tempo total do programa ---\n");
-    printf("%.2f segundos \n", tempoTotal);
+    printf("%lld milisegundos \n", tempoTotal);
     printf("------------------------------\n");
 
     return 0;

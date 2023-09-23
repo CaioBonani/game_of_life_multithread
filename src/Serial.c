@@ -227,15 +227,16 @@ int main()
         zerarMatriz(&newGrid);
 
         int resultado = somarVivos(&grid);
-        printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
+
+        // printf("\nRESULTADO DA GERACAO(%i) = %i", i + 1, resultado);
     }
 
     gettimeofday(&finalLaco, NULL);
 
-    double tempoLaco = (finalLaco.tv_sec - inicioLaco.tv_sec);
+    long long tempoLaco = (finalLaco.tv_sec - inicioLaco.tv_sec) * 1000 + (finalLaco.tv_usec - inicioLaco.tv_usec) / 1000;
 
     printf("\n-----Tempo total do laco -----\n");
-    printf("%.2f segundos \n", tempoLaco);
+    printf("%lld milisegundos \n", tempoLaco);
     printf("------------------------------\n");
 
     desalocarMatriz(&grid);
@@ -243,10 +244,10 @@ int main()
 
     gettimeofday(&finalTotal, NULL);
 
-    double tempoTotal = (finalTotal.tv_sec - inicioTotal.tv_sec);
+    long long tempoTotal = (finalTotal.tv_sec - inicioTotal.tv_sec) * 1000 + (finalTotal.tv_usec - inicioTotal.tv_usec) / 1000;
 
     printf("---Tempo total do programa ---\n");
-    printf("%.2f segundos \n", tempoTotal);
+    printf("%lld milisegundos \n", tempoTotal);
     printf("------------------------------\n");
 
     return 0;
