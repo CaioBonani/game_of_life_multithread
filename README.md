@@ -39,6 +39,63 @@ Times were measured in seconds, and iterations were set at 2000 for each scenari
 | openMP    | 8                     | 108.891                | 108.875                | 2000       |
 | serial    | 1                     | 340.733                | 340.707                | 2000       |
 
+# Compilation and Execution of Code
+
+### OpenMP
+
+```bash
+gcc -o OpenMP OpenMP.c -fopenmp
+```
+
+### Serial
+
+```bash
+gcc -o Serial Serial.c
+```
+
+### PThreads
+
+```bash
+gcc -o PThreads PThreads.c -lpthread
+```
+
+### Animation
+
+```bash
+gcc \`sdl2-config --cflags\` -o Animation Animation.c \`sdl2-config --libs\` -lSDL2_ttf
+```
+
+---
+
+## Execution
+
+After compiling, you can run the programs as follows:
+
+### OpenMP
+
+```bash
+./OpenMP
+```
+
+### Serial
+
+```bash
+./Serial
+```
+
+### PThreads
+
+```bash
+./PThreads
+```
+
+### Animation
+
+```bash
+./Animation
+```
+
+
 ## Demonstrative Video
 
 A 7-minute video with a detailed explanation and demonstration of the results can be found [here](https://drive.google.com/drive/folders/1xxsGlylHIGf5a_6zun1Uch23Mn53cIlP?usp=sharing).
